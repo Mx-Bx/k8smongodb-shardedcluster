@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shard2
+spec:
+  selector:
+    app: shard2
+  ports:
+    - protocol: TCP
+      port: 27401
+      targetPort: 27401
+  clusterIP: None

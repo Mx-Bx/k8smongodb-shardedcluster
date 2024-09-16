@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: config-server
+spec:
+  serviceName: "config-server"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: config-server
+  template:
+    metadata:
+      labels:
+        app: config-server
+    spec:
+      containers:
+      - name: mongo
+        image: mongo
+        command:
+          - sh
+          - -c
+          - |
+            PORT=$((27201 + $(hostname | awk -F'-' '{print $NF}')))
+            mongod --configsvr --replSet cfgrs --port $PORT --dbpath /data/db --bind_ip 0.0.0.0
+        ports:
+        - containerPort: 27201
+        volumeMounts:
+        - name: configdb-storage
+          mountPath: /data/db
+  volumeClaimTemplates:
+  - metadata:
+      name: configdb-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi

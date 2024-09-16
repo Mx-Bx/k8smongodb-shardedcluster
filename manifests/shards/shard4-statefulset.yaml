@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: shard4
+spec:
+  serviceName: "shard4"
+  replicas: 3
+  selector:
+    matchLabels:
+      app: shard4
+  template:
+    metadata:
+      labels:
+        app: shard4
+    spec:
+      containers:
+      - name: mongo
+        image: mongo
+        command:
+          - sh
+          - -c
+          - |
+            PORT=$((27601 + $(hostname | awk -F'-' '{print $NF}')))
+            mongod --shardsvr --replSet shard4rs --port $PORT --dbpath /data/db --bind_ip 0.0.0.0
+        ports:
+        - containerPort: 27601
+        volumeMounts:
+        - name: shard4-storage
+          mountPath: /data/db
+  volumeClaimTemplates:
+  - metadata:
+      name: shard4-storage
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 5Gi

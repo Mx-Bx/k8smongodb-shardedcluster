@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: shard4
+spec:
+  selector:
+    app: shard4
+  ports:
+    - protocol: TCP
+      port: 27601
+      targetPort: 27601
+  clusterIP: None
